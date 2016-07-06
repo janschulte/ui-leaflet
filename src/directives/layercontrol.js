@@ -8,7 +8,8 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
             showGroups: '=?', // Hide other opacity controls when one is activated.
             title: '@',
             baseTitle: '@',
-            overlaysTitle: '@'
+            overlaysTitle: '@',
+            mapId: '@'
         },
         replace: true,
         transclude: false,
@@ -26,8 +27,8 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                 changeBaseLayer: function(key, e) {
                     leafletHelpers.safeApply($scope, function(scp) {
                         scp.baselayer = key;
-                        leafletData.getMap().then(function(map) {
-                            leafletData.getLayers().then(function(leafletLayers) {
+                        leafletData.getMap($scope.mapId).then(function(map) {
+                            leafletData.getLayers($scope.mapId).then(function(leafletLayers) {
                                 if(map.hasLayer(leafletLayers.baselayers[key])) {
                                     return;
                                 }
@@ -201,7 +202,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
             controller.getMap().then(function(map) {
                 leafletScope.$watch('layers.baselayers', function(newBaseLayers) {
                     var baselayersArray = {};
-                    leafletData.getLayers().then(function(leafletLayers) {
+                    leafletData.getLayers(scope.mapId).then(function(leafletLayers) {
                         var key;
                         for(key in newBaseLayers) {
                             var layer = newBaseLayers[key];
@@ -215,7 +216,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                 leafletScope.$watch('layers.overlays', function(newOverlayLayers) {
                     var overlaysArray = [];
                     var groupVisibleCount = {};
-                    leafletData.getLayers().then(function(leafletLayers) {
+                    leafletData.getLayers(scope.mapId).then(function(leafletLayers) {
                         var key;
                         for(key in newOverlayLayers) {
                             var layer = newOverlayLayers[key];

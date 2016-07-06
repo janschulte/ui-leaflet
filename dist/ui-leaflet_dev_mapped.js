@@ -1,5 +1,5 @@
 /*!
-*  ui-leaflet 1.0.0 2016-06-13
+*  ui-leaflet 1.0.0 2016-07-06
 *  ui-leaflet - An AngularJS directive to easily interact with Leaflet maps
 *  git: https://github.com/angular-ui/ui-leaflet
 */
@@ -3760,7 +3760,8 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
             showGroups: '=?', // Hide other opacity controls when one is activated.
             title: '@',
             baseTitle: '@',
-            overlaysTitle: '@'
+            overlaysTitle: '@',
+            mapId: '@'
         },
         replace: true,
         transclude: false,
@@ -3778,8 +3779,8 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                 changeBaseLayer: function changeBaseLayer(key, e) {
                     leafletHelpers.safeApply($scope, function (scp) {
                         scp.baselayer = key;
-                        leafletData.getMap().then(function (map) {
-                            leafletData.getLayers().then(function (leafletLayers) {
+                        leafletData.getMap($scope.mapId).then(function (map) {
+                            leafletData.getLayers($scope.mapId).then(function (leafletLayers) {
                                 if (map.hasLayer(leafletLayers.baselayers[key])) {
                                     return;
                                 }
@@ -3907,7 +3908,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
             controller.getMap().then(function (map) {
                 leafletScope.$watch('layers.baselayers', function (newBaseLayers) {
                     var baselayersArray = {};
-                    leafletData.getLayers().then(function (leafletLayers) {
+                    leafletData.getLayers(scope.mapId).then(function (leafletLayers) {
                         var key;
                         for (key in newBaseLayers) {
                             var layer = newBaseLayers[key];
@@ -3921,7 +3922,7 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                 leafletScope.$watch('layers.overlays', function (newOverlayLayers) {
                     var overlaysArray = [];
                     var groupVisibleCount = {};
-                    leafletData.getLayers().then(function (leafletLayers) {
+                    leafletData.getLayers(scope.mapId).then(function (leafletLayers) {
                         var key;
                         for (key in newOverlayLayers) {
                             var layer = newOverlayLayers[key];
@@ -4439,12 +4440,12 @@ angular.module('ui-leaflet').directive('markers', function (leafletLogger, $root
                         var pass = _maybeAddMarkerToLayer(layerName, layers, model, marker, watchOptions.individual.type, map);
                         if (!pass) return; //something went wrong move on in the loop
                     } else if (!isDefined(model.group)) {
-                            // We do not have a layer attr, so the marker goes to the map layer
-                            map.addLayer(marker);
-                            if (watchOptions.individual.type === null && model.focus === true) {
-                                marker.openPopup();
-                            }
+                        // We do not have a layer attr, so the marker goes to the map layer
+                        map.addLayer(marker);
+                        if (watchOptions.individual.type === null && model.focus === true) {
+                            marker.openPopup();
                         }
+                    }
 
                     if (watchOptions.individual.type !== null) {
                         addMarkerWatcher(marker, pathToMarker, leafletScope, layers, map, watchOptions.individual);
@@ -5242,7 +5243,7 @@ angular.module('ui-leaflet').factory('leafletMarkerEvents', function ($rootScope
 
 'use strict';
 
-function _typeof(obj) { return obj && typeof Symbol !== "undefined" && obj.constructor === Symbol ? "symbol" : typeof obj; }
+var _typeof = typeof Symbol === "function" && typeof Symbol.iterator === "symbol" ? function (obj) { return typeof obj; } : function (obj) { return obj && typeof Symbol === "function" && obj.constructor === Symbol ? "symbol" : typeof obj; };
 
 angular.module('ui-leaflet').factory('leafletPathEvents', function ($rootScope, $q, leafletLogger, leafletHelpers, leafletLabelEvents, leafletEventsHelpers) {
     var isDefined = leafletHelpers.isDefined,
