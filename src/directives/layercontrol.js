@@ -248,9 +248,11 @@ angular.module('ui-leaflet').directive('layercontrol', function ($filter, leafle
                                     groupVisibleCount[layer.group].visibles++;
                                 }
                             }
+                            /*
                             if(isDefined(layer.index) && leafletLayers.overlays[key].setZIndex) {
                                 leafletLayers.overlays[key].setZIndex(newOverlayLayers[key].index);
                             }
+                            */
                         }
 
                         for(key in groupVisibleCount) {
